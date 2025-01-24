@@ -17,11 +17,15 @@ class GameViewController: UIViewController {
     var fallingDice: [SCNNode] = []
     var sideList: [String] = []
     
+    var resultLabel: UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupScene()
         setupWorldBoundary(for: scene)
+        
+        setupUI()
     }
     
     func setupScene() {
@@ -31,7 +35,7 @@ class GameViewController: UIViewController {
         scene = SCNScene(named: "art.scnassets/MainBoard.scn")!
         
         // Set the View to retrieved scene
-        sceneView = self.view as! SCNView
+        sceneView = self.view as? SCNView
         sceneView.scene = scene
         sceneView.allowsCameraControl = false
         
@@ -46,7 +50,37 @@ class GameViewController: UIViewController {
         scene?.physicsWorld.contactDelegate = self
     }
     
+    func setupUI() {
+        // Create a UILabel for displaying dice result and add it to the main view
+        resultLabel = UILabel(frame: CGRect(x: 0, y: 50, width: self.view.frame.width, height: 50))
+        resultLabel.textAlignment = .center
+        resultLabel.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+        resultLabel.textColor = .black
+//        resultLabel.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        resultLabel.text = "Roll the dice!"
+        self.view.addSubview(resultLabel)
+        
+        // Create a UIImageView with an SF Symbol for settings
+        let settingIcon = UIImageView()
+        settingIcon.image = UIImage(systemName: "gear")
+        settingIcon.tintColor = .label
+        // enable auto layout
+        settingIcon.translatesAutoresizingMaskIntoConstraints = false
+        self.view.addSubview(settingIcon)
+        
+        NSLayoutConstraint.activate([
+            settingIcon.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16), // Add padding from the top
+            settingIcon.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),           // Add padding from the left
+            settingIcon.widthAnchor.constraint(equalToConstant: 50),                                  // Set width
+            settingIcon.heightAnchor.constraint(equalToConstant: 50)                                  // Set height
+        ])
+        
+        // TODO: add setting icons that take you to different pages
+    }
+    
     func setupWorldBoundary(for scene: SCNScene) {
+        // TODO: adjust the width/height to align with device screen
+        
         // Define the dimensions of the boundary walls
         let boundaryWidth: CGFloat = 2.0
         let boundaryHeight: CGFloat = 5.0
@@ -97,10 +131,6 @@ class GameViewController: UIViewController {
         
         // Get the root node of the die file
         let dieNode = dieScene.rootNode.childNodes.first!
-//        
-//        let dieNode = SCNNode(geometry: SCNSphere(radius: 0.1))
-//        dieNode.physicsBody = SCNPhysicsBody(type: .dynamic, shape: nil)
-//        dieNode.name = "ball"
         
         // Set the position of the die at the camera
         dieNode.position = SCNVector3(cameraNode.position.x, cameraNode.position.y, cameraNode.position.z)
@@ -136,14 +166,16 @@ class GameViewController: UIViewController {
     }
         
     // Function to calculate which side is closest to the ground (assuming y = 0 is the ground)
-    func calculateClosestSide(for dieNode: SCNNode) -> SCNNode? {
+    func findUpSide(for dieNode: SCNNode) -> SCNNode? {
         print("Calculating Side")
         let markerNodes = dieNode.childNodes
         
+        // marker variables
         var furthestMarker: SCNNode?
         var maxDistance: Float = 0.0
 
         for marker in markerNodes {
+            // get the absolute position of the markers
             let distance = marker.presentation.worldPosition.y // Assuming marker at y = 0 is closest to the ground
 
             // check for the side that's furthest from 0 in terms of y
@@ -169,15 +201,25 @@ extension GameViewController: SCNSceneRendererDelegate {
     func renderer(_ renderer: any SCNSceneRenderer, updateAtTime time: TimeInterval) {
         for dieNode in fallingDice {
             if dieNode.physicsBody?.isResting == true {
+                
+                // debugging prints
                 let die = dieNode.presentation
                 print("Die Presentation")
                 print(die.position)
-                if let side = calculateClosestSide(for: dieNode) {
-                    print(side.name ?? "You fucked up")
+                
+                // find the upside face
+                if let side = findUpSide(for: dieNode) {
+                    print(side.name ?? "-1")
+                    
+                    // update UI on the main thread
+                    DispatchQueue.main.async {
+                        self.resultLabel.text = side.name ?? "-1"
+                    }
+                    
                     sideList.append(side.name!)
                 }
                 
-                // remove die notde
+                // remove die nodes
                 if let index = fallingDice.firstIndex(of: dieNode) {
                     fallingDice.remove(at: index)
                 }
