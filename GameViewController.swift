@@ -24,8 +24,7 @@ class GameViewController: UIViewController {
         
         setupScene()
         setupWorldBoundary(for: scene)
-        
-        setupUI()
+//        setupUI()
     }
     
     func setupScene() {
@@ -117,6 +116,15 @@ class GameViewController: UIViewController {
         }
     }
     
+    enum Dice: String {
+        case d4 = "art.scnassets/D4.scn"
+        case d6 = "art.scnassets/D6.scn"
+        case d8 = "art.scnassets/D8.scn"
+        case d10 = "art.scnassets/D10.scn"
+        case d12 = "art.scnassets/D12.scn"
+        case d20 = "art.scnassets/D20.scn"
+    }
+    
     @objc
     func handleTap(_ gestureRecognize: UIGestureRecognizer) {
         // Get the scene view
@@ -127,7 +135,28 @@ class GameViewController: UIViewController {
         let cameraNode = scene.rootNode.childNode(withName: "camera", recursively: true)!
         
         // Load die file
-        let dieScene = SCNScene(named: "art.scnassets/dTest.scn")!
+        let selectDie = Int.random(in: 1...6)
+        
+        let dieScene: SCNScene
+        switch selectDie {
+        case 1:
+            dieScene = SCNScene(named: "art.scnassets/D4.scn")!
+        case 2:
+            dieScene = SCNScene(named: "art.scnassets/D6.scn")!
+        case 3:
+            dieScene = SCNScene(named: "art.scnassets/D8.scn")!
+        case 4:
+            dieScene = SCNScene(named: "art.scnassets/D10.scn")!
+        case 5:
+            dieScene = SCNScene(named: "art.scnassets/D12.scn")!
+        case 6:
+            dieScene = SCNScene(named: "art.scnassets/D20.scn")!
+        default:
+            dieScene = SCNScene(named: "art.scnassets/D20.scn")!
+        }
+        
+        
+//        let dieScene = SCNScene(named: "art.scnassets/D12.scn")!
         
         // Get the root node of the die file
         let dieNode = dieScene.rootNode.childNodes.first!
