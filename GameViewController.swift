@@ -36,7 +36,7 @@ class GameViewController: UIViewController {
         // Set the View to retrieved scene
         sceneView = self.view as? SCNView
         sceneView.scene = scene
-        sceneView.allowsCameraControl = false
+        sceneView.allowsCameraControl = true
         
         // Add a gesture tap recognizer
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
@@ -135,28 +135,28 @@ class GameViewController: UIViewController {
         let cameraNode = scene.rootNode.childNode(withName: "camera", recursively: true)!
         
         // Load die file
-        let selectDie = Int.random(in: 1...6)
+//        let selectDie = Int.random(in: 1...6)
+//        
+//        let dieScene: SCNScene
+//        switch selectDie {
+//        case 1:
+//            dieScene = SCNScene(named: "art.scnassets/D4.scn")!
+//        case 2:
+//            dieScene = SCNScene(named: "art.scnassets/D6.scn")!
+//        case 3:
+//            dieScene = SCNScene(named: "art.scnassets/D8.scn")!
+//        case 4:
+//            dieScene = SCNScene(named: "art.scnassets/D10.scn")!
+//        case 5:
+//            dieScene = SCNScene(named: "art.scnassets/D12.scn")!
+//        case 6:
+//            dieScene = SCNScene(named: "art.scnassets/D20.scn")!
+//        default:
+//            dieScene = SCNScene(named: "art.scnassets/D20.scn")!
+//        }
         
-        let dieScene: SCNScene
-        switch selectDie {
-        case 1:
-            dieScene = SCNScene(named: "art.scnassets/D4.scn")!
-        case 2:
-            dieScene = SCNScene(named: "art.scnassets/D6.scn")!
-        case 3:
-            dieScene = SCNScene(named: "art.scnassets/D8.scn")!
-        case 4:
-            dieScene = SCNScene(named: "art.scnassets/D10.scn")!
-        case 5:
-            dieScene = SCNScene(named: "art.scnassets/D12.scn")!
-        case 6:
-            dieScene = SCNScene(named: "art.scnassets/D20.scn")!
-        default:
-            dieScene = SCNScene(named: "art.scnassets/D20.scn")!
-        }
         
-        
-//        let dieScene = SCNScene(named: "art.scnassets/D12.scn")!
+        let dieScene = SCNScene(named: "art.scnassets/D4.scn")!
         
         // Get the root node of the die file
         let dieNode = dieScene.rootNode.childNodes.first!
@@ -241,9 +241,9 @@ extension GameViewController: SCNSceneRendererDelegate {
                     print(side.name ?? "-1")
                     
                     // update UI on the main thread
-                    DispatchQueue.main.async {
-                        self.resultLabel.text = side.name ?? "-1"
-                    }
+//                    DispatchQueue.main.async {
+//                        self.resultLabel.text = side.name ?? "-1"
+//                    }
                     
                     sideList.append(side.name!)
                 }
